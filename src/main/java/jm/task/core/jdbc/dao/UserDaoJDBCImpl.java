@@ -9,20 +9,20 @@ import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
     private Util util = new Util();
-    private Connection connection = util.getConnection();
     public UserDaoJDBCImpl() {
 
     }
 
     public void createUsersTable() throws SQLException {
-        String sqlCommand = "CREATE TABLE  IF NOT EXISTS users (id BIGINT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(20), " +
-                "lastName VARCHAR(50), age TINYINT)";
+        Connection connection= util.getConnection();
         connection.setAutoCommit(false);
         try (Statement statement = util.getConnection().createStatement()) {
-            statement.executeUpdate(sqlCommand);
+             statement.executeUpdate("CREATE TABLE  IF NOT EXISTS users (id BIGINT PRIMARY KEY AUTO_INCREMENT, " +
+                    "name VARCHAR(20), " +
+                    "lastName VARCHAR(50), " +
+                    "age TINYINT)");
             connection.commit();
         } catch (SQLException e) {
-            if (connection != null ) connection.rollback();
             e.printStackTrace();
         } finally {
             connection.setAutoCommit(true);
@@ -34,15 +34,12 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void dropUsersTable() throws SQLException {
-        String sqlCommand = "DROP TABLE IF EXISTS users";
         Connection connection= util.getConnection();
         connection.setAutoCommit(false);
         try (Statement statement = util.getConnection().createStatement()){
-
-            statement.executeUpdate(sqlCommand);
+            statement.executeUpdate("DROP TABLE IF EXISTS users");
             connection.commit();
         } catch (SQLException e) {
-            if (connection != null ) connection.rollback();
             e.printStackTrace();
         }finally {
             connection.setAutoCommit(true);
@@ -102,6 +99,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public List<User> getAllUsers() throws SQLException {
         List<User> users = new ArrayList<>();
+        Connection connection= util.getConnection();
         try (PreparedStatement preparedStatement = util.getConnection().prepareStatement("SELECT  * FROM users")) {
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -125,16 +123,14 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void cleanUsersTable() throws SQLException {
-        String sqlCommand = "TRUNCATE TABLE users";
         Connection connection = util.getConnection();
         connection.setAutoCommit(false);
         try (Statement statement = util.getConnection().createStatement()){
 
-            statement.executeUpdate(sqlCommand);
+            statement.executeUpdate("TRUNCATE TABLE users");
             connection.commit();
         } catch (SQLException e) {
-            if (connection != null ) connection.rollback();
-            e.printStackTrace();
+           e.printStackTrace();
         }finally {
             connection.setAutoCommit(true);
             if (connection!= null) {
